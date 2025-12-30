@@ -9,7 +9,8 @@ let bestBird;
 const count = 1000;
 let pipes = [];
 let lastSpawn = 0;
-let spawnSeed = 500;
+let spawnSeed = 10 * count;
+const type = 'AI';
 
 const assetUrl = {
     imgs: {
@@ -51,7 +52,7 @@ function main(t) {
         background.fps = bestBird.speed * 0.5;
     if (t - lastSpawn > spawnSeed) {
         lastSpawn = t;
-        spawnSeed = getRandom(100, 5000);
+        spawnSeed = getRandom(5, 10) * count;
         const h = getRandom(1, 10);
         pipes.push(new Obstacle({ x: canvas.width + bestBird.x, y: getRandomValue([0, height - ((64 * h) * 0.8)]), scaleW: getRandom(1, 1.2), scaleH: h, incBoundingBoxHeight: 0.8, incBoundingBoxWidth: 0.2 }));
     }
@@ -83,44 +84,49 @@ function main(t) {
     ctx.fillStyle = 'azure';
     ctx.fillText(`Score: ${score} ${highScore ? 'highscore ' + highScore : ''}`, 10, 20);
 
-    // if (bird.alive) {
-    if (true) {
+    if (bird.alive) {
+        // if (true) {
         requestAnimationFrame(main);
     } else {
-        playSound('die');
-        let message = `Score: ${score}`;
-        if (highScore && Number(highScore) >= 0) {
-            if (score > Number(highScore)) {
-                message += `  New highscore: ${score}`;
-                localStorage.setItem('highscore', score)
-            } else {
-                message += `  Highscore: ${highScore}`;
-            }
+        if (type === 'AI') {
+            init();
+            return;
         } else {
-            localStorage.setItem('highscore', score);
-        }
-        const gameOver = assets.imgs['gameover'];
-        ctx.fillStyle = 'brown';
-        ctx.drawImage(gameOver, (width - gameOver.width) / 2, (height - gameOver.height) / 2);
+            playSound('die');
+            let message = `Score: ${score}`;
+            if (highScore && Number(highScore) >= 0) {
+                if (score > Number(highScore)) {
+                    message += `  New highscore: ${score}`;
+                    localStorage.setItem('highscore', score)
+                } else {
+                    message += `  Highscore: ${highScore}`;
+                }
+            } else {
+                localStorage.setItem('highscore', score);
+            }
+            const gameOver = assets.imgs['gameover'];
+            ctx.fillStyle = 'brown';
+            ctx.drawImage(gameOver, (width - gameOver.width) / 2, (height - gameOver.height) / 2);
 
-        const { width: TextWidth } = ctx.measureText(message);
-        ctx.fillStyle = 'brick';
-        ctx.fillText(message, (width - TextWidth) / 2, height / 2 + 50);
-        const restartText = 'Restart Game';
-        ctx.font = '20px monospace';
-        ctx.fillStyle = 'springgreen'
-        const { width: RestartTextWidth } = ctx.measureText(restartText);
-        ctx.fillText(restartText, (width - RestartTextWidth) / 2, height / 2 + 80);
-        addEventListener('click', () => {
-            init();
-        }, {
-            once: true
-        })
-        addEventListener('keydown', () => {
-            init();
-        }, {
-            once: true
-        })
+            const { width: TextWidth } = ctx.measureText(message);
+            ctx.fillStyle = 'brick';
+            ctx.fillText(message, (width - TextWidth) / 2, height / 2 + 50);
+            const restartText = 'Restart Game';
+            ctx.font = '20px monospace';
+            ctx.fillStyle = 'springgreen'
+            const { width: RestartTextWidth } = ctx.measureText(restartText);
+            ctx.fillText(restartText, (width - RestartTextWidth) / 2, height / 2 + 80);
+            addEventListener('click', () => {
+                init();
+            }, {
+                once: true
+            })
+            addEventListener('keydown', () => {
+                init();
+            }, {
+                once: true
+            })
+        }
     }
 }
 
